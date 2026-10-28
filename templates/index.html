@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
+
+<title>Web Plagiarism Analyzer</title>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
+
+</head>
+
+<body>
+
+<div class="page">
+
+<header>
+
+<!-- <div class="badge">
+NLP MINOR PROJECT
+</div> -->
+
+<h1>
+Web Plagiarism Analyzer
+</h1>
+
+<p>
+Detect potentially similar content by comparing document sentences with publicly accessible web sources.
+</p>
+
+</header>
+
+
+<section class="upload-card">
+
+<form
+    method="post"
+    enctype="multipart/form-data"
+>
+
+<label class="drop">
+
+<span class="upload-icon">
+↑
+</span>
+
+<strong>
+Upload your document
+</strong>
+
+<small>
+PDF, DOCX or TXT · Maximum 10 MB
+</small>
+
+<input
+    type="file"
+    name="file"
+    accept=".pdf,.docx,.txt"
+    required
+>
+
+</label>
+
+<button type="submit">
+Analyze for Similarity
+</button>
+
+</form>
+
+</section>
+
+
+{% if error %}
+
+<div class="error">
+
+<strong>
+Analysis error
+</strong>
+
+<span>
+{{ error }}
+</span>
+
+</div>
+
+{% endif %}
+
+
+{% if result %}
+
+
+<section class="status">
+
+<strong>
+Analysis status
+</strong>
+
+<span>
+{{ result.status }}
+</span>
+
+</section>
+
+
+<section class="summary">
+
+
+<div class="score-card">
+
+<span class="label">
+OVERALL WEB SIMILARITY
+</span>
+
+<div class="big">
+{{ result.overall }}%
+</div>
+
+<span class="score-description">
+Calculated from the best web-source match for
+each successfully analyzed sentence.
+</span>
+
+</div>
+
+
+<div class="metric">
+
+<span>
+WORDS
+</span>
+
+<strong>
+{{ result.word_count }}
+</strong>
+
+</div>
+
+
+<div class="metric">
+
+<span>
+SENTENCES
+</span>
+
+<strong>
+{{ result.total_sentences }}
+</strong>
+
+</div>
+
+
+<div class="metric">
+
+<span>
+POTENTIAL MATCHES
+</span>
+
+<strong>
+{{ result.flagged|length }}
+</strong>
+
+</div>
+
+
+</section>
+
+
+<section class="panel">
+
+<div class="panel-head">
+
+<h2>
+Potentially Similar Content
+</h2>
+
+<p>
+Sentences with a calculated similarity of
+20% or higher are displayed for manual verification.
+</p>
+
+</div>
+
+
+{% if result.flagged %}
+
+
+{% for item in result.flagged %}
+
+<article class="match">
+
+
+<div class="match-top">
+
+<span class="match-number">
+MATCH {{ loop.index }}
+</span>
+
+<span class="match-score">
+{{ item.score }}%
+</span>
+
+</div>
+
+
+<div class="sentence">
+{{ item.sentence }}
+</div>
+
+
+<div class="source">
+
+<div>
+
+<small>
+POSSIBLE WEB SOURCE
+</small>
+
+<a
+    href="{{ item.url }}"
+    target="_blank"
+    rel="noopener"
+>
+{{ item.title }}
+</a>
+
+</div>
+
+
+<a
+    class="source-button"
+    href="{{ item.url }}"
+    target="_blank"
+    rel="noopener"
+>
+View source ↗
+</a>
+
+</div>
+
+
+{% if item.matched_text %}
+
+<details>
+
+<summary>
+View closest matching source text
+</summary>
+
+<p>
+{{ item.matched_text }}
+</p>
+
+</details>
+
+{% endif %}
+
+
+</article>
+
+{% endfor %}
+
+
+{% else %}
+
+
+<div class="empty">
+
+<div>
+✓
+</div>
+
+<strong>
+No significant similarity detected
+</strong>
+
+<p>
+No retrieved web source crossed the
+20% similarity threshold.
+</p>
+
+</div>
+
+
+{% endif %}
+
+</section>
+
+
+<section class="panel">
+
+<div class="panel-head">
+
+<h2>
+Retrieved Web Sources
+</h2>
+
+<p>
+Sources are ranked according to their
+highest detected sentence similarity.
+</p>
+
+</div>
+
+
+{% if result.sources %}
+
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+#
+</th>
+
+<th>
+Source
+</th>
+
+<th>
+Best Similarity
+</th>
+
+<th>
+Matches
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{% for source in result.sources %}
+
+<tr>
+
+<td>
+{{ loop.index }}
+</td>
+
+
+<td>
+
+<a
+    href="{{ source.url }}"
+    target="_blank"
+    rel="noopener"
+>
+{{ source.title }}
+</a>
+
+<small>
+{{ source.url }}
+</small>
+
+</td>
+
+
+<td>
+
+<strong>
+{{ source.score }}%
+</strong>
+
+</td>
+
+
+<td>
+{{ source.matches }}
+</td>
+
+</tr>
+
+{% endfor %}
+
+
+</tbody>
+
+</table>
+
+</div>
+
+
+{% else %}
+
+
+<div class="empty small-empty">
+
+No accessible web sources were retrieved.
+
+</div>
+
+
+{% endif %}
+
+</section>
+
+
+<section class="panel">
+
+<div class="panel-head">
+
+<h2>
+All Sentence Comparisons
+</h2>
+
+<p>
+The table shows the highest similarity found
+for each sentence checked against retrieved web sources.
+</p>
+
+</div>
+
+
+{% if result.matches %}
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+#
+</th>
+
+<th>
+Document Sentence
+</th>
+
+<th>
+Similarity
+</th>
+
+<th>
+Best Source
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+{% for item in result.matches %}
+
+<tr>
+
+<td>
+{{ loop.index }}
+</td>
+
+
+<td>
+{{ item.sentence }}
+</td>
+
+
+<td>
+
+<strong>
+{{ item.score }}%
+</strong>
+
+</td>
+
+
+<td>
+
+<a
+    href="{{ item.url }}"
+    target="_blank"
+    rel="noopener"
+>
+{{ item.title }}
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endif %}
+
+</section>
+
+
+<section class="method">
+
+<h2>
+How the analysis works
+</h2>
+
+
+<div class="steps">
+
+<div>
+<b>01</b>
+<span>
+Extract text
+</span>
+</div>
+
+
+<div>
+<b>02</b>
+<span>
+Split into sentences
+</span>
+</div>
+
+
+<div>
+<b>03</b>
+<span>
+Search the web
+</span>
+</div>
+
+
+<div>
+<b>04</b>
+<span>
+Retrieve sources
+</span>
+</div>
+
+
+<div>
+<b>05</b>
+<span>
+Compare text
+</span>
+</div>
+
+
+<div>
+<b>06</b>
+<span>
+Generate report
+</span>
+</div>
+
+</div>
+
+</section>
+
+
+<div class="disclaimer">
+
+<strong>
+Important:
+</strong>
+
+This system reports textual similarity with
+publicly accessible web pages. The similarity
+percentage is not proof of plagiarism or
+academic misconduct. Results should be manually
+verified because legitimate quotations, common
+phrasing, and factual statements may also produce
+similarity.
+
+</div>
+
+
+{% endif %}
+
+</div>
+
+</body>
+
+</html>
