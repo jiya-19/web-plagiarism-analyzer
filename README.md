@@ -1,8 +1,5 @@
 # Web Plagiarism Analyzer
 
-## Project Type
-BTech CSE (AI/ML) Minor Project
-
 ## Overview
 
 Web Plagiarism Analyzer is a local NLP-based application that accepts a PDF, DOCX, or TXT document and searches publicly accessible web pages for potentially similar text.
@@ -282,10 +279,6 @@ Possible future improvements include:
 - Better duplicate-source filtering
 - Highlighting matching phrases directly inside the document
 
-## Viva Summary
+## Summary
 
-The project is an NLP-based web plagiarism-risk analyzer.
-
-The input document is converted to text and split into sentences. Distinctive sentences are searched on the public web. Accessible source pages are retrieved and divided into sentences. Each student sentence is compared with source candidates using TF-IDF cosine similarity and word overlap. The highest matching source is retained. A combined similarity score is used to flag potentially copied content and classify the overall result into low, medium, or high risk.
-
-The system is intended to assist manual plagiarism review rather than replace human judgment.
+The project is an NLP-based web plagiarism-risk analyzer. The input document is converted to text and split into sentences. Distinctive sentences are searched on the public web. Accessible source pages are retrieved and divided into sentences. Each student sentence is compared with source candidates using TF-IDF cosine similarity and word overlap. The highest matching source is retained. A combined similarity score is used to flag potentially copied content and classify the overall result into low, medium, or high risk. The system is intended to assist manual plagiarism review rather than replace human judgment.
